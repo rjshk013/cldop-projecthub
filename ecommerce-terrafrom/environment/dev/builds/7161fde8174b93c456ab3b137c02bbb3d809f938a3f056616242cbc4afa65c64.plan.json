@@ -1,0 +1,1 @@
+{"filename": "builds/7161fde8174b93c456ab3b137c02bbb3d809f938a3f056616242cbc4afa65c64.zip", "runtime": "nodejs20.x", "artifacts_dir": "builds", "build_plan": [[["zip", "function/onConnect.js", null]]]}

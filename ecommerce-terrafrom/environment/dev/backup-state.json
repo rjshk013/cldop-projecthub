@@ -1,0 +1,35 @@
+{
+  "version": 4,
+  "terraform_version": "1.11.0",
+  "serial": 65,
+  "lineage": "6d04c05a-6307-805a-3ab1-a9ea247be772",
+  "outputs": {},
+  "resources": [],
+  "check_results": [
+    {
+      "object_kind": "var",
+      "config_addr": "var.vpn_instance_type",
+      "status": "unknown",
+      "objects": null
+    },
+    {
+      "object_kind": "var",
+      "config_addr": "var.logging_level",
+      "status": "unknown",
+      "objects": null
+    },
+    {
+      "object_kind": "var",
+      "config_addr": "var.environment",
+      "status": "unknown",
+      "objects": null
+    },
+    {
+      "object_kind": "var",
+      "config_addr": "var.admin_allowed_ips",
+      "status": "unknown",
+      "objects": null
+    }
+  ]
+}
+
