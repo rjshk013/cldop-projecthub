@@ -11,8 +11,6 @@ PRITUNL_PASS="PritunlStrongPassword!"
 ENCODED_PASS=$(python3 -c "import urllib.parse; print(urllib.parse.quote('$PRITUNL_PASS'))")
 
 echo "🔧 Setting up MongoDB and Pritunl repositories..."
-# 🛠️ Ensure yum repo directory exists
-#sudo mkdir -p /etc/yum.repos.d
 # MongoDB repo (8.0 for Amazon Linux 2023)
 sudo tee /etc/yum.repos.d/mongodb-org.repo > /dev/null << EOF
 [mongodb-org]
