@@ -124,11 +124,10 @@ module "private_resources_sg" {
 
 resource "aws_key_pair" "devserver" {
   key_name   = "devserver-keypair"  # This is the name in AWS (you choose this)
-  public_key = file("~/.ssh/devserver_key.pub")  # Your local public key file
+  public_key = file(var.public_key_path)  # Your local public key file
   
   tags = merge(local.common_tags, {
     Name        = "devserver-keypair"
-    Purpose     = "Development server access"
 
   })
   

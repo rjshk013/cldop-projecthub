@@ -124,6 +124,12 @@ variable "vpn_client_cidr" {
   type        = string
   default     = "10.0.4.0/24"
 }
+
+variable "public_key_path" {
+  description = "Path to your local public key file"
+  type        = string
+  default     = "~/.ssh/devserver_key.pub"
+}
 ####R53  ##############
 
 variable "domain_name" {
