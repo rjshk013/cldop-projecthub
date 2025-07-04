@@ -41,6 +41,7 @@ echo "✅ Docker installed and running!"
 echo "🔐 Basic server hardening..."
 
 # Disable root login over SSH
+#sudo sed -i 's/^#Port.*/Port 22022/' /etc/ssh/sshd_config
 sed -i 's/^PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
 
 # Disable password authentication (use SSH key auth only)

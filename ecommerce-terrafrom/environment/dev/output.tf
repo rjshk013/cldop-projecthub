@@ -68,7 +68,7 @@ output "infrastructure_summary" {
     # Environment Information
     environment     = var.environment
     project_name    = var.project_name
-    region          = var.region
+    region          = var.aws_region
     
     # VPC Information
     vpc = {
@@ -130,8 +130,8 @@ output "vpn_server_info" {
     instance_id  = module.vpn_server.id
     
     # Access Information
-    admin_url    = "https://${module.vpn_server.public_ip}"
-    ssh_command  = "ssh -p ${var.ssh_port} -i your-key.pem ubuntu@${module.vpn_server.public_ip}"
+    #admin_url    = "https://${module.vpn_server.public_ip}"
+    ssh_command  = "ssh -p ${var.ssh_port} -i your-key.pem ec2-user@${module.vpn_server.public_ip}"
     
     # Security Group Information
     security_group_id   = module.vpn_server_sg.security_group_id

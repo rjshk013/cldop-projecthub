@@ -77,11 +77,12 @@ sudo pritunl set app.server_port $PRITUNL_PORT
 echo "🔒 Applying production-grade hardening..."
 
 ## SSH Hardening
+#sudo sed -i 's/^#Port.*/Port 22022/' /etc/ssh/sshd_config 
 sudo sed -i 's/^#PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
 sudo sed -i 's/^#PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
 sudo sed -i 's/^#LoginGraceTime.*/LoginGraceTime 30/' /etc/ssh/sshd_config
-sudo sed -i 's/^#MaxAuthTries.*/MaxAuthTries 3/' /etc/ssh/sshd_config
-sudo sed -i 's/^#MaxSessions.*/MaxSessions 2/' /etc/ssh/sshd_config
+sudo sed -i 's/^#MaxAuthTries.*/MaxAuthTries 10/' /etc/ssh/sshd_config
+sudo sed -i 's/^#MaxSessions.*/MaxSessions 6/' /etc/ssh/sshd_config
 sudo systemctl restart sshd
 
 ## iptables basic

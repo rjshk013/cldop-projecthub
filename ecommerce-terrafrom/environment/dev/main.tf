@@ -4,12 +4,12 @@ module "vpc" {
   
   name = "${local.name_prefix}-vpc" 
   cidr = var.vpc_cidr 
-  #azs  = local.azs
-  azs  = var.availability_zones
+  azs  = local.azs
+  # azs  = var.availability_zones
   
 
-  private_subnets = [for k, v in var.availability_zones : cidrsubnet(var.vpc_cidr, 8, k)]
-  public_subnets  = [for k, v in var.availability_zones : cidrsubnet(var.vpc_cidr, 8, k + 4)]
+  private_subnets = [for k, v in local.azs : cidrsubnet(var.vpc_cidr, 8, k)]
+  public_subnets  = [for k, v in local.azs : cidrsubnet(var.vpc_cidr, 8, k + 4)]
   
   # Enable common VPC features
   enable_nat_gateway = var.enable_nat_gateway
@@ -118,6 +118,25 @@ module "private_resources_sg" {
     Type = "Private-Resources-Security-Group"
   })
 }
+
+# KEY PAIR
+# ============================================================================
+
+resource "aws_key_pair" "devserver" {
+  key_name   = "devserver-keypair"  # This is the name in AWS (you choose this)
+  public_key = file("~/.ssh/devserver_key.pub")  # Your local public key file
+  
+  tags = merge(local.common_tags, {
+    Name        = "devserver-keypair"
+    Purpose     = "Development server access"
+
+  })
+  
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
 # ============================================================================
 # 6. VPN SERVER EC2 INSTANCE (UPDATED TO USE SECURITY GROUP MODULE)
 # ============================================================================
@@ -132,7 +151,8 @@ module "vpn_server" {
   # ✅ INSTANCE CONFIGURATION
   ami                     = data.aws_ami.amazon_linux_2023.id
   instance_type          = var.vpn_instance_type
-  key_name               = var.key_pair_name
+  #key_name               = var.key_pair_name
+  key_name      = aws_key_pair.devserver.key_name 
   monitoring             = true
   enable_volume_tags = false
   
@@ -186,7 +206,8 @@ module "private_instance" {
   # ✅ INSTANCE CONFIGURATION
   ami                = data.aws_ami.ubuntu.id
   instance_type      = var.vpn_instance_type
-  key_name          = var.key_pair_name
+  #key_name          = var.key_pair_name
+  key_name      = aws_key_pair.devserver.key_name 
   monitoring        = true
   enable_volume_tags = false
 
