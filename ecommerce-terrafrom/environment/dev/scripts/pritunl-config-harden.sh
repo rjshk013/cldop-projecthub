@@ -1,13 +1,13 @@
 #!/bin/bash
 
 set -e
+set -x
 
 ### CONFIGURATION ###
-# DOMAIN="vpn.ninz.store"
-# EMAIL="admin@example.com"
+
 PRITUNL_PORT="9700"
-MONGO_USER="pritunl_admin"
-MONGO_PASS="PritunlStrongPassword!"
+MONGO_USER="pritunl"
+MONGO_PASS="Pritunl@1234"
 ENCODED_PASS=$(python3 -c "import urllib.parse; print(urllib.parse.quote('$MONGO_PASS'))")
 
 echo "🔧 Setting up MongoDB and Pritunl repositories..."
@@ -44,7 +44,7 @@ sleep 10
 
 ### MongoDB Hardening
 echo "🔐 Securing MongoDB and creating user for Pritunl..."
-mongo <<EOF
+mongosh <<EOF
 use admin
 db.createUser({
   user: "$MONGO_USER",
@@ -53,11 +53,16 @@ db.createUser({
 })
 EOF
 
-sudo sed -i 's/#security:/security:\n  authorization: enabled/' /etc/mongod.conf
+
+sudo sed -i '/#security:/{
+  s/#security:/security:/
+  a \ \ authorization: enabled
+}' /etc/mongod.conf
 sudo systemctl restart mongod
 
 echo "⚙️ Updating /etc/pritunl.conf with MongoDB URI..."
-sudo tee /etc/pritunl.conf > /dev/null << EOF
+
+sudo tee /etc/pritunl.conf > /dev/null <<EOF
 {
   "mongodb_uri": "mongodb://$MONGO_USER:$ENCODED_PASS@localhost:27017/admin"
 }
@@ -85,41 +90,23 @@ sudo sed -i 's/^#MaxAuthTries.*/MaxAuthTries 10/' /etc/ssh/sshd_config
 sudo sed -i 's/^#MaxSessions.*/MaxSessions 6/' /etc/ssh/sshd_config
 sudo systemctl restart sshd
 
-## iptables basic
-echo "🧱 Setting up iptables firewall rules..."
-sudo iptables -F
-sudo iptables -X
-sudo iptables -P INPUT DROP
-sudo iptables -P FORWARD DROP
-sudo iptables -P OUTPUT ACCEPT
-sudo iptables -A INPUT -i lo -j ACCEPT
-sudo iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-sudo iptables -A INPUT -p tcp --dport 22 -j ACCEPT
-sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT
-sudo iptables -A INPUT -p tcp --dport 443 -j ACCEPT
-sudo iptables -A INPUT -p udp --dport 1194 -j ACCEPT
-sudo iptables-save | sudo tee /etc/iptables.rules
+## install firewalld
 
-# Load iptables on boot
-sudo tee /etc/systemd/system/iptables-restore.service > /dev/null << 'EOF'
-[Unit]
-Description=Restore iptables rules
-DefaultDependencies=no
-Before=network-pre.target
-Wants=network-pre.target
+sudo dnf install firewalld -y
+sudo systemctl enable firewalld
+sudo systemctl start firewalld
+# Set restrictive default (drop all incoming)
+sudo firewall-cmd --set-default-zone=drop
 
-[Service]
-Type=oneshot
-ExecStart=/usr/sbin/iptables-restore /etc/iptables.rules
-ExecReload=/usr/sbin/iptables-restore /etc/iptables.rules
-RemainAfterExit=yes
+# Allow required ports
+sudo firewall-cmd --permanent --add-port=22/tcp  # SSH
+sudo firewall-cmd --permanent --add-port=80/tcp     # HTTP
+sudo firewall-cmd --permanent --add-port=443/tcp    # HTTPS
+sudo firewall-cmd --permanent --add-port=1194/udp   # OpenVPN
 
-[Install]
-WantedBy=multi-user.target
-EOF
+# Apply changes
+sudo firewall-cmd --reload
 
-sudo systemctl daemon-reexec
-sudo systemctl enable --now iptables-restore.service
 
 ## IPv6 Disable
 sudo tee -a /etc/sysctl.conf > /dev/null <<EOF
@@ -142,10 +129,5 @@ net.ipv4.conf.default.accept_redirects = 0
 EOF
 sudo sysctl -p
 
-### ✅ Final Verification
-echo "🎯 Final Port Listening Check:"
-sudo lsof -i :80 | grep LISTEN || echo "❌ Port 80 not listening!"
-sudo lsof -i :443 | grep LISTEN || echo "❌ Port 443 not listening!"
-sudo lsof -i :$PRITUNL_PORT | grep LISTEN || echo "❌ Pritunl port $PRITUNL_PORT not listening!"
 
 echo "✅ Full VPN Server Setup with Hardening Completed Successfully!"
