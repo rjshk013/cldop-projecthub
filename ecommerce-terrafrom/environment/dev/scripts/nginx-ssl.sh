@@ -2,8 +2,8 @@
 
 set -e
 
-DOMAIN="vpn.ninz.store"
-EMAIL="tecnotes2@gmail.com"  # ✅ Replace with your actual email
+DOMAIN="vpn.example.store" # replace with ur domain
+EMAIL="example@gmail.com"  # ✅ Replace with your actual email
 PRITUNL_PORT="9700"
 
 echo "🔄 Stopping pritunl to configure letsencrypt & nginx reverse proxy..."
@@ -73,10 +73,5 @@ sudo pritunl set app.server_port $PRITUNL_PORT
 echo "🔄 Restarting Pritunl to apply changes..."
 sudo systemctl restart pritunl
 sudo systemctl status pritunl --no-pager
-
-echo "✅ Final port checks:"
-sudo lsof -i :80   | grep LISTEN || echo "❌ Port 80 not listening!"
-sudo lsof -i :443  | grep LISTEN || echo "❌ Port 443 not listening!"
-sudo lsof -i :$PRITUNL_PORT | grep LISTEN || echo "❌ Pritunl not listening on $PRITUNL_PORT!"
 
 echo "🎉 Setup completed successfully for $DOMAIN"
