@@ -6,7 +6,7 @@ terraform {
   backend "s3" {
     encrypt      = true
     bucket       = "finops-remote-tfstate"
-    key          = "envs/dev/state.tfstate"
+    key          = "terraform.tfstate"
     region       = "us-east-1"
     use_lockfile = true
     
