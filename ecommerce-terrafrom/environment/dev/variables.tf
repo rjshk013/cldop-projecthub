@@ -130,6 +130,11 @@ variable "public_key_path" {
   type        = string
   default     = "~/.ssh/devserver_key.pub"
 }
+variable "private_key_path" {
+  description = "Path to your local public key file"
+  type        = string
+  default     = "~/.ssh/devserver_key"
+}
 ####R53  ##############
 
 variable "domain_name" {
