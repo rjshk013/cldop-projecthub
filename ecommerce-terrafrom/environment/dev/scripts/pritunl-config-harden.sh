@@ -63,6 +63,7 @@ sudo systemctl restart mongod
 echo "⚙️ Updating /etc/pritunl.conf with MongoDB URI..."
 
 sudo tee /etc/pritunl.conf > /dev/null <<EOF
+
 {
   "mongodb_uri": "mongodb://$MONGO_USER:$ENCODED_PASS@localhost:27017/admin"
 }
@@ -82,7 +83,7 @@ sudo pritunl set app.server_port $PRITUNL_PORT
 echo "🔒 Applying production-grade hardening..."
 
 ## SSH Hardening
-#sudo sed -i 's/^#Port.*/Port 22022/' /etc/ssh/sshd_config 
+sudo sed -i 's/^#Port.*/Port 22022/' /etc/ssh/sshd_config 
 sudo sed -i 's/^#PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
 sudo sed -i 's/^#PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
 sudo sed -i 's/^#LoginGraceTime.*/LoginGraceTime 30/' /etc/ssh/sshd_config
@@ -99,7 +100,7 @@ sudo systemctl start firewalld
 sudo firewall-cmd --set-default-zone=drop
 
 # Allow required ports
-sudo firewall-cmd --permanent --add-port=22/tcp  # SSH
+sudo firewall-cmd --permanent --add-port=22022/tcp  # SSH
 sudo firewall-cmd --permanent --add-port=80/tcp     # HTTP
 sudo firewall-cmd --permanent --add-port=443/tcp    # HTTPS
 sudo firewall-cmd --permanent --add-port=1194/udp   # OpenVPN
@@ -127,7 +128,24 @@ net.ipv4.conf.default.accept_source_route = 0
 net.ipv4.conf.all.accept_redirects = 0
 net.ipv4.conf.default.accept_redirects = 0
 EOF
+# Enable IP forwarding
+echo "net.ipv4.ip_forward = 1" | sudo tee -a /etc/sysctl.conf
 sudo sysctl -p
 
+# Enable NAT/masquerading
+sudo firewall-cmd --permanent --add-masquerade
+
+# Trust VPN client network
+sudo firewall-cmd --permanent --zone=trusted --add-source=10.0.4.0/24
+
+# Get network interface and trust it
+INTERFACE=$(ip route | grep default | awk '{print $5}' | head -n1)
+sudo firewall-cmd --permanent --zone=trusted --add-interface=$INTERFACE
+
+# Apply changes
+sudo firewall-cmd --reload
+
+# Restart Pritunl
+sudo systemctl restart pritunl
 
 echo "✅ Full VPN Server Setup with Hardening Completed Successfully!"
