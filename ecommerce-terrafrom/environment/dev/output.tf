@@ -125,23 +125,26 @@ output "vpn_server_info" {
   description = "VPN server information with security group details"
   value = {
     # Instance Information
-    public_ip    = module.vpn_server.public_ip
-    private_ip   = module.vpn_server.private_ip
-    instance_id  = module.vpn_server.id
+    #public_ip   = module.vpn_server.public_ip
+    private_ip  = module.vpn_server.private_ip
+    instance_id = module.vpn_server.id
+    ###IP info#####
+    elastic_ip          = aws_eip.vpn_server.public_ip           # ✅ Static Elastic IP
+    elastic_ip_id       = aws_eip.vpn_server.id                 # ✅ EIP allocation ID         # ℹ️  Auto-assigned IP (for reference)
     
     # Access Information
     #admin_url    = "https://${module.vpn_server.public_ip}"
-    ssh_command  = "ssh -p ${var.ssh_port} -i your-key.pem ec2-user@${module.vpn_server.public_ip}"
-    
+    ssh_command = "ssh -p ${var.ssh_port} -i ${var.private_key_path} ec2-user@${aws_eip.vpn_server.public_ip}"
+
     # Security Group Information
     security_group_id   = module.vpn_server_sg.security_group_id
     security_group_name = module.vpn_server_sg.security_group_name
-    
+
     # Network Configuration
-    ssh_port = var.ssh_port
-    vpn_port = var.vpn_port
+    ssh_port          = var.ssh_port
+    vpn_port          = var.vpn_port
     admin_allowed_ips = var.admin_allowed_ips
-    vpn_client_cidr = var.vpn_client_cidr
+    vpn_client_cidr   = var.vpn_client_cidr
   }
 }
 
