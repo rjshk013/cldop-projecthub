@@ -41,7 +41,7 @@ echo "✅ Docker installed and running!"
 echo "🔐 Basic server hardening..."
 
 # Disable root login over SSH
-#sudo sed -i 's/^#Port.*/Port 22022/' /etc/ssh/sshd_config
+sudo sed -i 's/^#Port.*/Port 22022/' /etc/ssh/sshd_config
 sed -i 's/^PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
 
 # Disable password authentication (use SSH key auth only)
@@ -56,7 +56,7 @@ systemctl restart sshd
 # Set up UFW firewall
 ufw default deny incoming
 ufw default allow outgoing
-ufw allow 22    # SSH
+ufw allow 22022    # SSH
 ufw allow 80    # HTTP
 ufw allow 443   # HTTPS
 ufw enable <<< "y"
