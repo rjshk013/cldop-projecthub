@@ -102,14 +102,14 @@ variable "vpn_port" {
 variable "ssh_port" {
   description = "Custom SSH port for security"
   type        = number
-  default     = 22
+  default     = 22022
 }
 
 variable "admin_allowed_ips" {
   description = "List of IP addresses allowed admin access"
   type        = list(string)
   default     = [
-    "103.175.88.98/32",  # Replace with your office IP
+    "0.0.0.0/0",  # Replace with your office IP
     "103.175.88.75/32"   # Replace with your home IP
   ]
   
