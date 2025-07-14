@@ -187,8 +187,8 @@ module "vpn_server" {
 
   # ✅ STORAGE CONFIGURATION
   root_block_device = {
-    volume_type           = "gp3"
-    volume_size           = 20
+    type           = "gp3"
+    size           = 20
     encrypted             = true
     delete_on_termination = true
   }
@@ -242,8 +242,8 @@ module "private_instance" {
 
   # ✅ STORAGE CONFIGURATION
   root_block_device = {
-    volume_type           = "gp3"
-    volume_size           = 20
+    type           = "gp3"
+    size           = 20
     encrypted             = true
     delete_on_termination = true
   }
