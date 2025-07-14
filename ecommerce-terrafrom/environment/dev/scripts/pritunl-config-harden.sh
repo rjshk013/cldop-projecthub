@@ -82,14 +82,6 @@ sudo pritunl set app.server_port $PRITUNL_PORT
 ### VPN Server Hardening
 echo "🔒 Applying production-grade hardening..."
 
-## SSH Hardening
-sudo sed -i 's/^#Port.*/Port 22022/' /etc/ssh/sshd_config 
-sudo sed -i 's/^#PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
-sudo sed -i 's/^#PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
-sudo sed -i 's/^#LoginGraceTime.*/LoginGraceTime 30/' /etc/ssh/sshd_config
-sudo sed -i 's/^#MaxAuthTries.*/MaxAuthTries 10/' /etc/ssh/sshd_config
-sudo sed -i 's/^#MaxSessions.*/MaxSessions 6/' /etc/ssh/sshd_config
-sudo systemctl restart sshd
 
 ## install firewalld
 
@@ -145,5 +137,15 @@ sudo firewall-cmd --reload
 
 # Restart Pritunl
 sudo systemctl restart pritunl
+
+
+## SSH Hardening
+sudo sed -i 's/^#Port.*/Port 22022/' /etc/ssh/sshd_config 
+sudo sed -i 's/^#PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
+sudo sed -i 's/^#PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
+sudo sed -i 's/^#LoginGraceTime.*/LoginGraceTime 30/' /etc/ssh/sshd_config
+sudo sed -i 's/^#MaxAuthTries.*/MaxAuthTries 10/' /etc/ssh/sshd_config
+sudo sed -i 's/^#MaxSessions.*/MaxSessions 6/' /etc/ssh/sshd_config
+sudo systemctl restart sshd
 
 echo "✅ Full VPN Server Setup with Hardening Completed Successfully!"
