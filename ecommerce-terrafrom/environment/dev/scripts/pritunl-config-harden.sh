@@ -89,11 +89,13 @@ sudo dnf install firewalld -y
 sudo systemctl enable firewalld
 sudo systemctl start firewalld
 
-# Allow required ports
-sudo firewall-cmd --permanent --add-port=22022/tcp  # SSH
-sudo firewall-cmd --permanent --add-port=80/tcp     # HTTP
-sudo firewall-cmd --permanent --add-port=443/tcp    # HTTPS
-sudo firewall-cmd --permanent --add-port=1194/udp   # OpenVPN
+sudo firewall-cmd --set-default-zone=public
+# # Allow required ports in public zone
+sudo firewall-cmd --permanent --zone=public --add-port=22022/tcp
+sudo firewall-cmd --permanent --zone=public --add-port=22/tcp
+sudo firewall-cmd --permanent --zone=public --add-port=80/tcp
+sudo firewall-cmd --permanent --zone=public --add-port=443/tcp
+sudo firewall-cmd --permanent --zone=public --add-port=1194/udp
 
 # Apply changes
 sudo firewall-cmd --reload
@@ -128,9 +130,11 @@ sudo firewall-cmd --permanent --add-masquerade
 # Trust VPN client network
 sudo firewall-cmd --permanent --zone=trusted --add-source=10.0.4.0/24
 
-# Get network interface and trust it
+# Get network interface but DON'T assign it to trusted zone
 INTERFACE=$(ip route | grep default | awk '{print $5}' | head -n1)
-sudo firewall-cmd --permanent --zone=trusted --add-interface=$INTERFACE
+echo "Network interface: $INTERFACE (staying in public zone)"
+# Assign interface to public zone
+sudo firewall-cmd --permanent --zone=public --add-interface=$INTERFACE
 
 # Apply changes
 sudo firewall-cmd --reload
