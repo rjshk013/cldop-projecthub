@@ -96,8 +96,6 @@ sudo systemctl restart sshd
 sudo dnf install firewalld -y
 sudo systemctl enable firewalld
 sudo systemctl start firewalld
-# Set restrictive default (drop all incoming)
-sudo firewall-cmd --set-default-zone=drop
 
 # Allow required ports
 sudo firewall-cmd --permanent --add-port=22022/tcp  # SSH
