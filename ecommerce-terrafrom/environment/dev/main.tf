@@ -304,7 +304,7 @@ resource "aws_route53_record" "vpn_server_a_record" {
   name    = "vpn" # This creates vpn.ninz.store
   type    = "A"
   ttl     = 300
-  records = [module.vpn_server.public_ip]
+  records = [aws_eip.vpn_server.public_ip]
   depends_on = [aws_eip_association.vpn_server]
 }
 
