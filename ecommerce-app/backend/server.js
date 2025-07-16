@@ -465,21 +465,21 @@ app.post('/api/seed', async (req, res) => {
         name: 'Wireless Headphones',
         description: 'High-quality wireless headphones with noise cancellation',
         price: 99.99,
-        image: 'https://ninzstore-products-images.s3.us-east-1.amazonaws.com/products/headphones.jpg',
+        image: process.env.HEADPHONES_IMAGE_URL || 'https://ninzstore-products-images.s3.us-east-1.amazonaws.com/products/headphones.jpg',
         stock: 15
       },
       {
         name: 'Smart Watch',
         description: 'Fitness tracking smart watch with heart rate monitor',
         price: 199.99,
-        image: 'https://ninzstore-products-images.s3.us-east-1.amazonaws.com/products/smartwatch.jpg',
+        image: process.env.SMARTWATCH_IMAGE_URL || 'https://ninzstore-products-images.s3.us-east-1.amazonaws.com/products/smartwatch.jpg',
         stock: 20
       },
       {
         name: 'Laptop Stand',
         description: 'Adjustable aluminum laptop stand for better ergonomics',
         price: 49.99,
-        image: 'https://ninzstore-products-images.s3.us-east-1.amazonaws.com/products/laptop-stand.jpg',
+        image: process.env.LAPTOPSTAND_IMAGE_URL || 'https://ninzstore-products-images.s3.us-east-1.amazonaws.com/products/laptop-stand.jpg',
         stock: 25
       }
     ];
@@ -521,21 +521,21 @@ const autoSeed = async () => {
           name: 'Wireless Headphones',
           description: 'High-quality wireless headphones with noise cancellation',
           price: 99.99,
-          image: 'https://ninzstore-products-images.s3.us-east-1.amazonaws.com/products/headphones.jpg',
+          image: process.env.HEADPHONES_IMAGE_URL || 'https://ninzstore-products-images.s3.us-east-1.amazonaws.com/products/headphones.jpg',
           stock: 15
         },
         {
           name: 'Smart Watch',
           description: 'Fitness tracking smart watch with heart rate monitor',
           price: 199.99,
-          image: 'https://ninzstore-products-images.s3.us-east-1.amazonaws.com/products/smartwatch.jpg',
+          image: process.env.SMARTWATCH_IMAGE_URL || 'https://ninzstore-products-images.s3.us-east-1.amazonaws.com/products/smartwatch.jpg',
           stock: 20
         },
         {
           name: 'Laptop Stand',
           description: 'Adjustable aluminum laptop stand for better ergonomics',
           price: 49.99,
-          image: 'https://ninzstore-products-images.s3.us-east-1.amazonaws.com/products/laptop-stand.jpg',
+          image: process.env.LAPTOPSTAND_IMAGE_URL || 'https://ninzstore-products-images.s3.us-east-1.amazonaws.com/products/laptop-stand.jpg',
           stock: 25
         }
       ];
