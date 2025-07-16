@@ -311,19 +311,20 @@ resource "aws_route53_record" "vpn_server_a_record" {
 # resource "null_resource" "vpn_post_dns_nginx_ssl" {
 #   triggers = {
 #     # Only run when specific things change
-#     #vpn_server_ip = module.vpn_server.public_ip
+#     vpn_server_ip = aws_eip.vpn_server.public_ip  # ✅ Add EIP to triggers
 #     domain_name   = var.domain_name
 #     vpn_fqdn     = aws_route53_record.vpn_server_a_record.fqdn
 #   }
 
-#   depends_on = [aws_route53_record.vpn_server_a_record]
+#   depends_on = [aws_route53_record.vpn_server_a_record, aws_eip_association.vpn_server ]
 
 #   connection {
 #     type        = "ssh"
 #     user        = "ec2-user"
 #     private_key = file(var.private_key_path) 
-#     host        = module.vpn_server.public_ip
-#     port        = var.ssh_port 
+#     host        = aws_eip.vpn_server.public_ip
+#     port        = var.ssh_port
+#      timeout     = "5m" 
 #   }
 
 #   provisioner "file" {
