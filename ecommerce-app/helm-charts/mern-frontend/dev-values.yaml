@@ -1,5 +1,5 @@
 image:
-  repository: 446440614855.dkr.ecr.us-east-1.amazonaws.com/mern-frontend
+  repository: yoursccountid.dkr.ecr.us-east-1.amazonaws.com/mern-frontend
   tag: "v1.0.0"
   pullPolicy: IfNotPresent
 
