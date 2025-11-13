@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mern-backend.fullname" . }}
+  labels:
+    {{- include "mern-backend.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "mern-backend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "mern-backend.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "mern-backend.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          # Environment variables from secrets
+          {{- if .Values.envFrom }}
+          envFrom:
+            {{- if .Values.envFrom.secretRef }}
+            - secretRef:
+                name: {{ .Values.envFrom.secretRef.name }}
+            {{- end }}
+            {{- if .Values.envFrom.configMapRef }}
+            - configMapRef:
+                name: {{ .Values.envFrom.configMapRef.name }}
+            {{- end }}
+          {{- end }}
+          # Health checks
+          {{- if and .Values.probes .Values.probes.startup .Values.probes.startup.enabled }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.probes.startup.path }}
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: {{ .Values.probes.startup.initialDelaySeconds | default 5 }}
+            periodSeconds: {{ .Values.probes.startup.periodSeconds | default 2 }}
+            failureThreshold: {{ .Values.probes.startup.failureThreshold | default 30 }}
+            timeoutSeconds: {{ .Values.probes.startup.timeoutSeconds | default 2 }}
+          {{- end }}
+          {{- if and .Values.probes .Values.probes.readiness .Values.probes.readiness.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.probes.readiness.path }}
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds | default 5 }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds | default 5 }}
+            timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds | default 2 }}
+            failureThreshold: {{ .Values.probes.readiness.failureThreshold | default 2 }}
+            successThreshold: {{ .Values.probes.readiness.successThreshold | default 1 }}
+          {{- end }}
+          {{- if and .Values.probes .Values.probes.liveness .Values.probes.liveness.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.probes.liveness.path }}
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds | default 20 }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds | default 10 }}
+            timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds | default 2 }}
+            failureThreshold: {{ .Values.probes.liveness.failureThreshold | default 3 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+

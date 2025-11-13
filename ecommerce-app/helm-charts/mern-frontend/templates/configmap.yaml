@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "mern-frontend.fullname" . }}-config
+  namespace: {{ .Release.Namespace }}
+data:
+  BACKEND_BASE_URL: {{ .Values.env.BACKEND_BASE_URL | quote }}

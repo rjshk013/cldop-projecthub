@@ -1,0 +1,69 @@
+image:
+  repository: 446440614855.dkr.ecr.us-east-1.amazonaws.com/mern-frontend
+  tag: "v1.0.0"
+  pullPolicy: IfNotPresent
+
+# attach the pull secret
+imagePullSecrets:
+  - name: ecr-registry-secret
+
+replicas: 2
+
+service:
+  type: NodePort
+  port: 80
+  nodePort: 32004
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 300m
+    memory: 256Mi
+
+serviceAccount:
+  create: false
+  name: ""
+
+   
+
+probes:
+  startup:
+    enabled: true
+    path: /
+    initialDelaySeconds: 3
+    periodSeconds: 5
+    timeoutSeconds: 2
+    failureThreshold: 30
+
+  readiness:
+    enabled: true
+    path: /
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 2
+    failureThreshold: 3
+    successThreshold: 1
+
+  liveness:
+    enabled: true
+    path: /
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+autoscaling:
+  enabled: false    
+
+# NEW: backend target for Nginx
+backend:
+  host: mern-backend   # your backend Service name
+  port: 5000                      # backend Service port
+
+# App config (what the React app uses)
+env:
+  BACKEND_BASE_URL: "/api"
+
+

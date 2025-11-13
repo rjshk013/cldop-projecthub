@@ -1,0 +1,146 @@
+# Complete RabbitMQ StatefulSet Configuration for MERN Stack
+# Using official RabbitMQ image (more reliable than Bitnami)
+
+---
+# Secret for RabbitMQ credentials
+apiVersion: v1
+kind: Secret
+metadata:
+  name: rabbitmq-secret
+  namespace: mern-stack
+type: Opaque
+stringData:
+  rabbitmq-username: "admin"
+  rabbitmq-password: "Admin12345"
+
+---
+# Headless Service for StatefulSet
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-headless
+  namespace: mern-stack
+  labels:
+    app: rabbitmq
+spec:
+  clusterIP: None
+  ports:
+  - name: amqp
+    port: 5672
+    targetPort: 5672
+  - name: management
+    port: 15672
+    targetPort: 15672
+  selector:
+    app: rabbitmq
+
+---
+# Service for external access
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  namespace: mern-stack
+  labels:
+    app: rabbitmq
+spec:
+  type: ClusterIP
+  ports:
+  - name: amqp
+    port: 5672
+    targetPort: 5672
+  - name: management
+    port: 15672
+    targetPort: 15672
+  selector:
+    app: rabbitmq
+
+---
+# RabbitMQ StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rabbitmq
+  namespace: mern-stack
+  labels:
+    app: rabbitmq
+spec:
+  serviceName: rabbitmq-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:3.13-management  # Official RabbitMQ with management UI
+        ports:
+        - name: amqp
+          containerPort: 5672
+          protocol: TCP
+        - name: management
+          containerPort: 15672
+          protocol: TCP
+        
+        env:
+        - name: RABBITMQ_DEFAULT_USER
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq-secret
+              key: rabbitmq-username
+        - name: RABBITMQ_DEFAULT_PASS
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq-secret
+              key: rabbitmq-password
+        
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 250m
+          limits:
+            memory: 1Gi
+            cpu: 500m
+        
+        volumeMounts:
+        - name: rabbitmq-data
+          mountPath: /var/lib/rabbitmq
+        
+        livenessProbe:
+          exec:
+            command:
+            - rabbitmq-diagnostics
+            - -q
+            - ping
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        
+        readinessProbe:
+          exec:
+            command:
+            - rabbitmq-diagnostics
+            - -q
+            - check_running
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+  
+  volumeClaimTemplates:
+  - metadata:
+      name: rabbitmq-data
+      labels:
+        app: rabbitmq
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      storageClassName: local-storage-retain
+      resources:
+        requests:
+          storage: 5Gi

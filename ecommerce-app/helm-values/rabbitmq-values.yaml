@@ -1,0 +1,26 @@
+image:
+  registry: docker.io
+  repository: bitnami/rabbitmq
+  tag: "3.12-debian-12"  
+auth:
+  username: admin
+  password: "Admin12345"
+
+persistence:
+  enabled: true
+  storageClass: "local-storage-retain"
+  size: 5Gi
+
+resources:
+  requests:
+    memory: 512Mi
+    cpu: 250m
+  limits:
+    memory: 1Gi
+    cpu: 500m
+
+service:
+  type: ClusterIP
+  ports:
+    amqp: 5672
+    manager: 15672

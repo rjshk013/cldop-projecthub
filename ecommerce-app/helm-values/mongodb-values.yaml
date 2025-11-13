@@ -1,0 +1,25 @@
+architecture: standalone
+# Set this to true to create a StatefulSet instead
+useStatefulSet: true
+auth:
+  rootUser: root
+  rootPassword: "Admin12345"
+  username: "mernapp"
+  password: "mernapp123"
+  database: "merndb"
+
+persistence:
+  enabled: true
+  storageClass: "local-storage-retain"
+  size: 5Gi
+
+volumePermissions:
+  enabled: true
+
+resources:
+  requests:
+    memory: 512Mi
+    cpu: 250m
+  limits:
+    memory: 1Gi
+    cpu: 500m

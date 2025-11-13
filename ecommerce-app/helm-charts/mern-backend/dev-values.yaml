@@ -1,0 +1,57 @@
+image:
+  repository: 446440614855.dkr.ecr.us-east-1.amazonaws.com/mern-backend
+  tag: "v1.0.0"
+  pullPolicy: IfNotPresent
+
+# attach the pull secret
+imagePullSecrets:
+  - name: ecr-registry-secret
+
+replicas: 2
+
+# Environment configuration
+envFrom:
+  secretRef:
+    name: mern-backend-secrets
+
+service:
+  type: NodePort
+  port: 5000
+  nodePort: 32005
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+serviceAccount:
+  create: false
+  automount: true
+  annotations: {}
+  name: "default"  # Use the default service account
+
+probes:
+  startup:
+    enabled: true
+    path: /api/products
+    initialDelaySeconds: 5 
+    periodSeconds: 3
+    failureThreshold: 40       # ~60s total (2s * 30)
+    timeoutSeconds: 2
+  readiness:
+    enabled: true
+    path: /api/products
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 2
+    failureThreshold: 2
+    successThreshold: 1
+  liveness:
+    enabled: true
+    path: /api/products
+    initialDelaySeconds: 20
+    periodSeconds: 10
+    timeoutSeconds: 2
+    failureThreshold: 3
